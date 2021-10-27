@@ -1,9 +1,10 @@
 #define LED_PIN 5
+#define BUTTON_PIN 11
 #define LED_TYPE WS2813
 #define NUM_SEGMENT_LEDS 14
 #define NUMS_TO_DISPLAY 10
 #define NUM_SEGMENTS 7
-
+#define COUNTNUM 9
 
 
 #include <FastLED.h>
@@ -25,6 +26,7 @@ const byte lookup_table[NUMS_TO_DISPLAY][NUM_SEGMENTS] = {{1, 1, 1, 0, 1, 1, 1},
 void setup() {
   // put your setup code here, to run once:
   pinMode(LED_PIN, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
   FastLED.addLeds<LED_TYPE, LED_PIN>(leds, NUM_SEGMENT_LEDS);
 }
 
@@ -37,10 +39,21 @@ void showNumber(int number) {
   }
   FastLED.show();
 }
-
-void loop() {
+void showNothing(){
   for(int i = 0; i < NUM_SEGMENT_LEDS; i++) {
-    leds[i] = CRGB(120, 120, 120);
+      leds[i] = CRGB(0, 0, 0);
   }
   FastLED.show();
+}
+
+void loop() {
+  BS = digitalRead(BUTTON_PIN);
+  if(BS == HIGH){
+    delay(500)
+    for(int x = COUNTNUM; x >=0; x--){
+      showNumber(x);
+      delay(1000);
+    }
+}
+  showNothing();
 }

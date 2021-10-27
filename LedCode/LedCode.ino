@@ -10,6 +10,8 @@
 #include <FastLED.h>
 
 CRGB leds[NUM_SEGMENT_LEDS];
+CRGB side1_leds[NUM_SIDE_LEDS];
+CRGB side2_leds[NUM_SIDE_LEDS];
 
 const byte lookup_table[NUMS_TO_DISPLAY][NUM_SEGMENTS] = {{1, 1, 1, 0, 1, 1, 1},     // 0
                                                     {0, 0, 1, 0, 0, 0, 1},           // 1
@@ -49,6 +51,27 @@ void showNothing(){
       leds[i] = CRGB(0, 0, 0);
   }
   FastLED.show();
+}
+void noSideLEDS(){
+  for(int x = 0; x < NUM_SIDE_LEDS; x++){
+    side1_leds[x] = CHSV(0, 0, 0);
+    side2_leds[x] = CHSV(0, 0, 0);
+  }
+}
+void sideLEDS(){
+  int hue = random(0, 256);
+  if(SIDE_COUNTER < NUM_SIDE_LEDS / 2){
+    int x = SIDE_COUNTER; 
+    side1_leds[x] = CHSV(hue, 255, 200);
+    side2_leds[x] = CHSV(hue, 255, 200);
+    side1_leds[NUM_SIDE_LEDS - x] = CHSV(hue, 255, 200);
+    side2_leds[NUM_SIDE_LEDS - x] = CHSV(hue, 255, 200);
+    SIDE_COUNTER++;
+  }
+  else{
+    noSideLEDS();
+    SIDE_COUNTER = 0;
+  }
 }
 
 void loop() {

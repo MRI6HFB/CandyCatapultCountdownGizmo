@@ -31,10 +31,15 @@ void setup() {
 }
 
 void showNumber(int number) {
+  int hue = random(0, 256);
   for(int i = 0; i < NUM_SEGMENTS; i++) {
     if(lookup_table[number][i]) {
-      leds[2*i] = CRGB(200, 0, 0);
-      leds[2*i + 1] = CRGB(200, 0, 0);
+      leds[2*i] = CHSV(hue, 255, 200);
+      leds[2*i + 1] = CHSV(hue, 255, 200);
+    }
+    else{
+      leds[2*i] = CRGB(0, 0, 0);
+      leds[2*i + 1] = CRGB(0, 0, 0);
     }
   }
   FastLED.show();
@@ -47,9 +52,9 @@ void showNothing(){
 }
 
 void loop() {
-  BS = digitalRead(BUTTON_PIN);
-  if(BS == HIGH){
-    delay(500)
+
+  if(digitalRead(BUTTON_PIN) == LOW){
+    delay(500);
     for(int x = COUNTNUM; x >=0; x--){
       showNumber(x);
       delay(1000);

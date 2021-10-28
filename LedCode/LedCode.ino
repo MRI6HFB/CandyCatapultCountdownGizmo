@@ -16,7 +16,8 @@ CRGB leds[NUM_SEGMENT_LEDS];
 CRGB bleds[12];
 CRGB side1_leds[6];
 CRGB side2_leds[6];
-int hue = 0;
+int hue = random(0, 256);
+long lastSideCount = 0;
 
 const byte lookup_table[NUMS_TO_DISPLAY][NUM_SEGMENTS] = {{1, 1, 1, 0, 1, 1, 1},     // 0
                                                     {0, 0, 1, 0, 0, 0, 1},           // 1
@@ -41,6 +42,7 @@ void setup() {
   FastLED.addLeds<LED_TYPE, SIDE1_LED_PIN>(side1_leds, 6);
   FastLED.addLeds<LED_TYPE, SIDE2_LED_PIN>(side2_leds, 6);
   FastLED.addLeds<LED_TYPE, BOTTOM_LED_PIN>(bleds, 12);
+  lastSideCount = millis();
 }
 
 void showNumber(int number) {
@@ -75,19 +77,27 @@ void noSideLEDS(){
   }
 }
 void sideLEDS(){
+  if(millis() - lastSideCount > 500){
+    lastSideCount = millis();
   if(SIDE_COUNTER < 3){
     int x = SIDE_COUNTER; 
     side1_leds[x] = CHSV(hue, 255, 200);
     side2_leds[x] = CHSV(hue, 255, 200);
-    side1_leds[6 - x] = CHSV(hue, 255, 200);
-    side2_leds[6 - x] = CHSV(hue, 255, 200);
+    side1_leds[5 - x] = CHSV(hue, 255, 200);
+    side2_leds[5 - x] = CHSV(hue, 255, 200);
+    bleds[2* x + 1] = CHSV(hue, 255, 200);
+    bleds[2 * x] = CHSV(hue, 255, 200);
+    bleds[7 + 2 * x] = CHSV(hue, 255, 200);
+    bleds[6 + 2 * x] = CHSV(hue, 255, 200);
     SIDE_COUNTER++;
     FastLED.show();
   }
   else{
-    noSideLEDS();
+    showNothing();
     FastLED.show();
     SIDE_COUNTER = 0;
+    hue = random(0, 256);
+  }
   }
 }
 
@@ -121,6 +131,8 @@ void celebrate() {
 void loop() {
 
   if(digitalRead(BUTTON_PIN) == LOW){
+    showNothing();
+    FastLED.show();
     delay(500);
     for(int x = COUNTNUM; x >=0; x--){
       hue = random(0, 256);

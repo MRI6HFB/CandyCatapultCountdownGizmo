@@ -100,8 +100,9 @@ void celebrate() {
   showNothing();
   FastLED.show();
   delay(500);
-  showNumber(0);
   for(int j = 0; j < 6; j++) {
+    hue = random(0, 256);
+    showNumber(0);
     for(int i = 0; i < 12; i++) {
         bleds[i] = CHSV(hue, 255, 200);
     }
@@ -122,6 +123,7 @@ void loop() {
   if(digitalRead(BUTTON_PIN) == LOW){
     delay(500);
     for(int x = COUNTNUM; x >=0; x--){
+      hue = random(0, 256);
       showNumber(x);
       delay(1000);
     }

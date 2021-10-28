@@ -1,4 +1,7 @@
 #define LED_PIN 5
+#define SIDE1_LED_PIN 7
+#define SIDE2_LED_PIN 9
+#define BOTTOM_LED_PIN 3
 #define BUTTON_PIN 11
 #define LED_TYPE WS2813
 #define NUM_SEGMENT_LEDS 14
@@ -8,10 +11,12 @@
 
 
 #include <FastLED.h>
-
+int SIDE_COUNTER = 0;
 CRGB leds[NUM_SEGMENT_LEDS];
-CRGB side1_leds[NUM_SIDE_LEDS];
-CRGB side2_leds[NUM_SIDE_LEDS];
+CRGB bleds[12];
+CRGB side1_leds[6];
+CRGB side2_leds[6];
+int hue = 0;
 
 const byte lookup_table[NUMS_TO_DISPLAY][NUM_SEGMENTS] = {{1, 1, 1, 0, 1, 1, 1},     // 0
                                                     {0, 0, 1, 0, 0, 0, 1},           // 1
@@ -28,12 +33,17 @@ const byte lookup_table[NUMS_TO_DISPLAY][NUM_SEGMENTS] = {{1, 1, 1, 0, 1, 1, 1},
 void setup() {
   // put your setup code here, to run once:
   pinMode(LED_PIN, OUTPUT);
+  pinMode(SIDE1_LED_PIN, OUTPUT);
+  pinMode(SIDE2_LED_PIN, OUTPUT);
+  pinMode(BOTTOM_LED_PIN, OUTPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   FastLED.addLeds<LED_TYPE, LED_PIN>(leds, NUM_SEGMENT_LEDS);
+  FastLED.addLeds<LED_TYPE, SIDE1_LED_PIN>(side1_leds, 6);
+  FastLED.addLeds<LED_TYPE, SIDE2_LED_PIN>(side2_leds, 6);
+  FastLED.addLeds<LED_TYPE, BOTTOM_LED_PIN>(bleds, 12);
 }
 
 void showNumber(int number) {
-  int hue = random(0, 256);
   for(int i = 0; i < NUM_SEGMENTS; i++) {
     if(lookup_table[number][i]) {
       leds[2*i] = CHSV(hue, 255, 200);
@@ -50,27 +60,60 @@ void showNothing(){
   for(int i = 0; i < NUM_SEGMENT_LEDS; i++) {
       leds[i] = CRGB(0, 0, 0);
   }
-  FastLED.show();
+  for(int i = 0; i < 6; i++) {
+      side1_leds[i] = CRGB(0, 0, 0);
+      side2_leds[i] = CRGB(0, 0, 0);
+  }
+  for(int i = 0; i < 12; i++) {
+      bleds[i] = CRGB(0, 0, 0);
+  }
 }
 void noSideLEDS(){
-  for(int x = 0; x < NUM_SIDE_LEDS; x++){
+  for(int x = 0; x < 6; x++){
     side1_leds[x] = CHSV(0, 0, 0);
     side2_leds[x] = CHSV(0, 0, 0);
   }
 }
 void sideLEDS(){
-  int hue = random(0, 256);
-  if(SIDE_COUNTER < NUM_SIDE_LEDS / 2){
+  if(SIDE_COUNTER < 3){
     int x = SIDE_COUNTER; 
     side1_leds[x] = CHSV(hue, 255, 200);
     side2_leds[x] = CHSV(hue, 255, 200);
-    side1_leds[NUM_SIDE_LEDS - x] = CHSV(hue, 255, 200);
-    side2_leds[NUM_SIDE_LEDS - x] = CHSV(hue, 255, 200);
+    side1_leds[6 - x] = CHSV(hue, 255, 200);
+    side2_leds[6 - x] = CHSV(hue, 255, 200);
     SIDE_COUNTER++;
+    FastLED.show();
   }
   else{
     noSideLEDS();
+    FastLED.show();
     SIDE_COUNTER = 0;
+  }
+}
+
+int botCount = 0;
+long botTimer = 0;
+int botCount2 = 0;
+
+void celebrate() {
+  hue = random(0, 256);
+  showNothing();
+  FastLED.show();
+  delay(500);
+  showNumber(0);
+  for(int j = 0; j < 6; j++) {
+    for(int i = 0; i < 12; i++) {
+        bleds[i] = CHSV(hue, 255, 200);
+    }
+    for(int i = 0; i < 6; i++) {
+      side1_leds[i] = CHSV(hue, 255, 200);
+      side2_leds[i] = CHSV(hue, 255, 200);
+    }
+    FastLED.show();
+    delay(500);
+    showNothing();
+    FastLED.show();
+    delay(500);
   }
 }
 
@@ -82,6 +125,8 @@ void loop() {
       showNumber(x);
       delay(1000);
     }
-}
-  showNothing();
+    celebrate();
+  }
+  sideLEDS();
+  delay(50);
 }
